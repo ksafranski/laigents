@@ -1,5 +1,5 @@
 {
-  "name": "lagent",
+  "name": "@ksafranski/lagent",
   "version": "1.0.2",
   "description": "A simple set of abstractions for building AI agents and workflows",
   "main": "dist/index.js",
