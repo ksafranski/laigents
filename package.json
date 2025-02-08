@@ -1,5 +1,5 @@
 {
-  "name": "ai-lagent",
+  "name": "laigents",
   "version": "1.0.2",
   "description": "A simple set of abstractions for building AI agents and workflows",
   "main": "dist/index.js",
@@ -60,10 +60,10 @@
   "author": "",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yourusername/ai-agent-system.git"
+    "url": "git+https://github.com/ksafranski/laigents.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/ai-agent-system/issues"
+    "url": "https://github.com/ksafranski/laigents/issues"
   },
-  "homepage": "https://github.com/yourusername/ai-agent-system#readme"
+  "homepage": "https://github.com/ksafranski/laigents#readme"
 }
