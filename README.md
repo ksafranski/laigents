@@ -90,10 +90,10 @@ async function main() {
   console.log(readFileResult);
 
   // Save something to memory
-  await agent.saveInMemory('Important information to remember', 'text');
+  await agent.saveInMemory(readFileResult, 'text');
 
   // Search memory
-  const memory = await agent.searchMemory('information');
+  const memory = await agent.searchMemory('sum');
   console.log(memory);
 }
 
