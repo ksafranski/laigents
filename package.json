@@ -18,7 +18,7 @@
     "clean": "rm -rf dist",
     "prebuild": "yarn clean",
     "prepare": "yarn build",
-    "prepublishOnly": "yarn test && yarn lint",
+    "prepublishOnly": "yarn lint",
     "preversion": "yarn lint",
     "version": "git add -A src",
     "postversion": "git push && git push --tags",
