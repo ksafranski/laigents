@@ -1,16 +1,9 @@
-import { System, AgentConfig, SystemConfig } from '../src/index';
+import { Laigent, AgentConfig, SystemConfig } from '../../src/index';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const systemConfig: SystemConfig = {
-  openaiApiKey: process.env.OPENAI_API_KEY!,
-  pineconeApiKey: process.env.PINECONE_API_KEY!,
-  pineconeEnvironment: process.env.PINECONE_ENVIRONMENT!,
-  pineconeIndexName: process.env.PINECONE_INDEX_NAME!,
-  embeddingModel: process.env.OPENAI_EMBEDDING_MODEL,
-};
-
+// Configure your agents
 const agents: AgentConfig[] = [
   {
     name: 'smith',
@@ -24,11 +17,21 @@ const agents: AgentConfig[] = [
   },
 ];
 
-const system = new System(agents, systemConfig);
+// Configure the system
+const config: SystemConfig = {
+  openaiApiKey: process.env.OPENAI_API_KEY!,
+  pineconeApiKey: process.env.PINECONE_API_KEY!,
+  pineconeEnvironment: process.env.PINECONE_ENVIRONMENT!,
+  pineconeIndexName: process.env.PINECONE_INDEX!,
+  embeddingModel: process.env.OPENAI_EMBEDDING_MODEL,
+};
+
+// Create and initialize the Laigent instance
+const ai = new Laigent(agents, config);
 
 async function main() {
-  await system.initialize();
-  const agent = system.getAgent('smith');
+  await ai.initialize();
+  const agent = ai.getAgent('smith');
 
   // Prompt the agent
   const response = await agent.prompt('I need a function that returns the sum of two numbers.');

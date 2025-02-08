@@ -2,13 +2,13 @@ import { Agent } from './agent';
 import { AgentConfig, SystemConfig } from './memory/types';
 import { Logger } from './logger';
 
-export class System {
+export class Laigent {
   private agents: Map<string, Agent>;
   public logger: Logger;
   private config: SystemConfig;
 
   constructor(agentConfigs: AgentConfig[], config: SystemConfig) {
-    this.logger = new Logger('System', 'blue');
+    this.logger = new Logger('Laigent', 'blue');
     this.config = config;
     this.agents = new Map();
 
@@ -20,7 +20,7 @@ export class System {
       this.agents.set(config.name, new Agent(config, this.config));
     });
 
-    this.logger.info(`Created system with ${this.agents.size} agents`);
+    this.logger.info(`Created instance with ${this.agents.size} agents`);
   }
 
   async initialize(): Promise<void> {

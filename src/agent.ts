@@ -20,7 +20,7 @@ const DEFAULT_MODEL: ModelType = 'gpt-4o-mini';
 const PURPOSE_MODEL_MAP: Record<AgentPurpose, ModelType> = {
   reasoning: 'gpt-4o',
   answering: 'gpt-4o-mini',
-  coding: 'o1',
+  coding: 'gpt-4o-mini',
 };
 
 export class Agent {

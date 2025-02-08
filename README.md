@@ -40,10 +40,21 @@ PINECONE_INDEX=your_pinecone_index
 ## Basic Usage
 
 ```typescript
-import { Agent, SystemConfig } from 'laigents';
+import { Laigent, AgentConfig } from 'laigents';
 
-// Configure your agent
-const config: SystemConfig = {
+// Configure your agents
+const agents: AgentConfig[] = [
+  {
+    name: 'assistant',
+    systemPrompt: 'You are a helpful AI assistant.',
+    purpose: 'general',
+    model: 'gpt-4-turbo-preview',
+  },
+];
+
+// Create and initialize the Laigent instance
+const ai = new Laigent({
+  agents,
   openai: {
     apiKey: process.env.OPENAI_API_KEY,
     model: 'gpt-4-turbo-preview',
@@ -53,26 +64,18 @@ const config: SystemConfig = {
     environment: process.env.PINECONE_ENVIRONMENT,
     index: process.env.PINECONE_INDEX,
   },
-};
+});
 
-// Create an agent
-const agent = new Agent(
-  'my-agent',
-  {
-    systemPrompt: 'You are a helpful AI assistant.',
-    purpose: 'general',
-    model: 'gpt-4-turbo-preview',
-  },
-  config
-);
+await ai.initialize();
 
-// Use the agent
-const response = await agent.instruct('Tell me a joke about programming.');
+// Get an agent and use it
+const assistant = ai.getAgent('assistant');
+const response = await assistant.instruct('Tell me a joke about programming.');
 console.log(response);
 
 // Use with memory
-await agent.saveInMemory('Important information to remember', 'text');
-const searchResults = await agent.searchMemory('information');
+await assistant.saveInMemory('Important information to remember', 'text');
+const searchResults = await assistant.searchMemory('information');
 ```
 
 ## Advanced Usage
@@ -80,26 +83,41 @@ const searchResults = await agent.searchMemory('information');
 ### Multi-Agent Workflows
 
 ```typescript
-import { Agent, SystemConfig } from 'laigents';
+import { Laigent, AgentConfig } from 'laigents';
 
-// Create multiple agents for different tasks
-const researcher = new Agent(
-  'researcher',
+// Configure multiple agents for different tasks
+const agents: AgentConfig[] = [
   {
+    name: 'researcher',
     systemPrompt: 'You are a research assistant.',
     purpose: 'research',
   },
-  config
-);
-
-const writer = new Agent(
-  'writer',
   {
+    name: 'writer',
     systemPrompt: 'You are a technical writer.',
     purpose: 'writing',
   },
-  config
-);
+];
+
+// Create and initialize the Laigent instance
+const ai = new Laigent({
+  agents,
+  openai: {
+    apiKey: process.env.OPENAI_API_KEY,
+    model: 'gpt-4-turbo-preview',
+  },
+  pinecone: {
+    apiKey: process.env.PINECONE_API_KEY,
+    environment: process.env.PINECONE_ENVIRONMENT,
+    index: process.env.PINECONE_INDEX,
+  },
+});
+
+await ai.initialize();
+
+// Get the agents
+const researcher = ai.getAgent('researcher');
+const writer = ai.getAgent('writer');
 
 // Use them in a workflow
 const research = await researcher.instruct('Research the latest AI trends');
@@ -109,31 +127,74 @@ const article = await writer.instruct(`Write an article about: ${research}`);
 ### File Operations
 
 ```typescript
-import { Agent, SystemConfig } from 'laigents';
+import { Laigent, AgentConfig } from 'laigents';
 
-const coder = new Agent(
-  'coder',
+// Configure a coding agent
+const agents: AgentConfig[] = [
   {
+    name: 'coder',
     systemPrompt: 'You are a code assistant.',
     purpose: 'coding',
+    response: {
+      type: 'code',
+      language: 'typescript',
+    },
   },
-  config
-);
+];
 
-// Read and write files
+// Create and initialize the Laigent instance
+const ai = new Laigent({
+  agents,
+  openai: {
+    apiKey: process.env.OPENAI_API_KEY,
+    model: 'gpt-4-turbo-preview',
+  },
+  pinecone: {
+    apiKey: process.env.PINECONE_API_KEY,
+    environment: process.env.PINECONE_ENVIRONMENT,
+    index: process.env.PINECONE_INDEX,
+  },
+});
+
+await ai.initialize();
+
+// Get the coding agent
+const coder = ai.getAgent('coder');
+
+// Use file operations
 const fileContent = await coder.actions.readFile('example.ts');
 await coder.actions.writeFile('output.ts', 'console.log("Hello World!");');
 ```
 
 ## API Documentation
 
-### Agent Class
+### Laigent Class
 
-The main class for creating and managing agents.
+The main class for managing agents and their configurations.
 
 ```typescript
-new Agent(name: string, agentConfig: AgentConfig, systemConfig: SystemConfig)
+new Laigent({
+  agents: AgentConfig[],
+  openai: {
+    apiKey: string,
+    model?: string,
+  },
+  pinecone: {
+    apiKey: string,
+    environment: string,
+    index: string,
+  },
+})
 ```
+
+#### Methods
+
+- `initialize(): Promise<void>` - Initialize the instance and all agents
+- `getAgent(name: string): Agent` - Get an agent by name
+
+### Agent Class
+
+The class representing individual agents.
 
 #### Methods
 

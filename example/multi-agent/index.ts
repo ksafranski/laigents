@@ -1,71 +1,73 @@
-import { System, AgentConfig, SystemConfig } from '../../src/index';
+import { Laigent, AgentConfig, SystemConfig } from '../../src/index';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const systemConfig: SystemConfig = {
-  openaiApiKey: process.env.OPENAI_API_KEY!,
-  pineconeApiKey: process.env.PINECONE_API_KEY!,
-  pineconeEnvironment: process.env.PINECONE_ENVIRONMENT!,
-  pineconeIndexName: process.env.PINECONE_INDEX_NAME!,
-  embeddingModel: process.env.OPENAI_EMBEDDING_MODEL,
-};
-
-// Configure multiple agents with different purposes
+// Configure your agents
 const agents: AgentConfig[] = [
   {
-    name: 'coder',
+    name: 'function_creator',
+    systemPrompt:
+      'You are a TypeScript function creator. You create well-documented, efficient functions.',
     purpose: 'coding',
-    model: 'gpt-4o',
-    systemPrompt: 'You are a TypeScript expert focused on writing clean, efficient code.',
     response: {
       type: 'code',
       language: 'typescript',
+      maxTokens: 300,
     },
   },
   {
     name: 'documenter',
+    systemPrompt: 'You are a documentation expert. You create clear, comprehensive documentation.',
     purpose: 'reasoning',
-    systemPrompt: 'You are a technical writer who creates clear documentation for code.',
     response: {
       type: 'markdown',
+      maxTokens: 300,
     },
   },
 ];
 
+// Configure the system
+const config: SystemConfig = {
+  openaiApiKey: process.env.OPENAI_API_KEY!,
+  pineconeApiKey: process.env.PINECONE_API_KEY!,
+  pineconeEnvironment: process.env.PINECONE_ENVIRONMENT!,
+  pineconeIndexName: process.env.PINECONE_INDEX!,
+  embeddingModel: process.env.OPENAI_EMBEDDING_MODEL,
+};
+
+// Create and initialize the Laigent instance
+const ai = new Laigent(agents, config);
+
 async function main() {
-  const system = new System(agents, systemConfig);
-  await system.initialize();
+  await ai.initialize();
 
   // Get both agents
-  const coder = system.getAgent('coder');
-  const documenter = system.getAgent('documenter');
+  const functionCreator = ai.getAgent('function_creator');
+  const documenter = ai.getAgent('documenter');
 
-  // Use coder to create a function
-  const code = await coder.prompt('Create a function that implements quicksort');
-  await coder.writeFile('example/multi-agent/quicksort.ts', code);
+  // Create a function
+  const functionCode = await functionCreator.prompt(
+    'Create a function that calculates the factorial of a number.'
+  );
 
-  // Use documenter to create documentation
-  const docs = await documenter.prompt(`Create documentation for this code: ${code}`);
-  await documenter.writeFile('example/multi-agent/quicksort.md', docs);
+  // Write the function to a file
+  await functionCreator.writeFile('example/multi-agent/factorial.ts', functionCode);
 
-  // Save both to memory with related metadata
-  await coder.saveInMemory(code.toString(), 'text', {
-    algorithm: 'quicksort',
-    category: 'sorting',
-  });
+  // Get documentation for the function
+  const functionDoc = await documenter.prompt(
+    'Create documentation for this factorial function: ' + functionCode
+  );
 
-  await documenter.saveInMemory(docs.toString(), 'markdown', {
-    algorithm: 'quicksort',
-    type: 'documentation',
-  });
+  // Write the documentation
+  await documenter.writeFile('example/multi-agent/factorial.md', functionDoc);
 
-  // Later, you can search either agent's memory
-  const codeExamples = await coder.searchMemory('quicksort implementation', 5);
-  console.log('Code examples from memory:', JSON.stringify(codeExamples, null, 2));
+  // Read both files
+  const code = await functionCreator.readFile('example/multi-agent/factorial.ts');
+  const docs = await documenter.readFile('example/multi-agent/factorial.md');
 
-  const documentation = await documenter.searchMemory('quicksort documentation', 5);
-  console.log('Documentation from memory:', JSON.stringify(documentation, null, 2));
+  console.log('Function Code:\n', code);
+  console.log('\nFunction Documentation:\n', docs);
 }
 
 main();
