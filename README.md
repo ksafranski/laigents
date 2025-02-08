@@ -31,7 +31,11 @@ pnpm add laigents
 Create a `.env` file in your project root:
 
 ```bash
+# OpenAI Configuration
 OPENAI_API_KEY=your_openai_api_key
+OPENAI_EMBEDDING_MODEL=text-embedding-ada-002  # Optional
+
+# Pinecone Configuration
 PINECONE_API_KEY=your_pinecone_api_key
 PINECONE_ENVIRONMENT=your_pinecone_environment
 PINECONE_INDEX=your_pinecone_index
@@ -40,42 +44,60 @@ PINECONE_INDEX=your_pinecone_index
 ## Basic Usage
 
 ```typescript
-import { Laigent, AgentConfig } from 'laigents';
+import { Laigent, AgentConfig, SystemConfig } from 'laigents';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 // Configure your agents
 const agents: AgentConfig[] = [
   {
-    name: 'assistant',
-    systemPrompt: 'You are a helpful AI assistant.',
-    purpose: 'general',
-    model: 'gpt-4-turbo-preview',
+    name: 'smith',
+    systemPrompt: 'You are a helpful assistant.',
+    purpose: 'answering',
+    response: {
+      type: 'code',
+      language: 'typescript',
+      maxTokens: 300,
+    },
   },
 ];
 
+// Configure the system
+const config: SystemConfig = {
+  openaiApiKey: process.env.OPENAI_API_KEY!,
+  pineconeApiKey: process.env.PINECONE_API_KEY!,
+  pineconeEnvironment: process.env.PINECONE_ENVIRONMENT!,
+  pineconeIndexName: process.env.PINECONE_INDEX!,
+  embeddingModel: process.env.OPENAI_EMBEDDING_MODEL,
+};
+
 // Create and initialize the Laigent instance
-const ai = new Laigent({
-  agents,
-  openai: {
-    apiKey: process.env.OPENAI_API_KEY,
-    model: 'gpt-4-turbo-preview',
-  },
-  pinecone: {
-    apiKey: process.env.PINECONE_API_KEY,
-    environment: process.env.PINECONE_ENVIRONMENT,
-    index: process.env.PINECONE_INDEX,
-  },
-});
+const ai = new Laigent(agents, config);
 
-await ai.initialize();
+async function main() {
+  await ai.initialize();
+  const agent = ai.getAgent('smith');
 
-// Get an agent and use it
-const assistant = ai.getAgent('assistant');
-const response = await assistant.prompt('Tell me a joke about programming.');
-console.log(response);
+  // Prompt the agent
+  const response = await agent.prompt('I need a function that returns the sum of two numbers.');
 
-// Use with memory
-await assistant.saveInMemory('Important information to remember', 'text');
-const searchResults = await assistant.searchMemory('information');
+  // Write the response to a file
+  await agent.writeFile('sum.ts', response);
+
+  // Read the file
+  const readFileResult = await agent.readFile('sum.ts');
+  console.log(readFileResult);
+
+  // Save something to memory
+  await agent.saveInMemory('Important information to remember', 'text');
+
+  // Search memory
+  const memory = await agent.searchMemory('information');
+  console.log(memory);
+}
+
+main();
 ```
 
 ## Advanced Usage
@@ -83,87 +105,79 @@ const searchResults = await assistant.searchMemory('information');
 ### Multi-Agent Workflows
 
 ```typescript
-import { Laigent, AgentConfig } from 'laigents';
+import { Laigent, AgentConfig, SystemConfig } from 'laigents';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 // Configure multiple agents for different tasks
 const agents: AgentConfig[] = [
   {
-    name: 'researcher',
-    systemPrompt: 'You are a research assistant.',
-    purpose: 'research',
-  },
-  {
-    name: 'writer',
-    systemPrompt: 'You are a technical writer.',
-    purpose: 'writing',
-  },
-];
-
-// Create and initialize the Laigent instance
-const ai = new Laigent({
-  agents,
-  openai: {
-    apiKey: process.env.OPENAI_API_KEY,
-    model: 'gpt-4-turbo-preview',
-  },
-  pinecone: {
-    apiKey: process.env.PINECONE_API_KEY,
-    environment: process.env.PINECONE_ENVIRONMENT,
-    index: process.env.PINECONE_INDEX,
-  },
-});
-
-await ai.initialize();
-
-// Get the agents
-const researcher = ai.getAgent('researcher');
-const writer = ai.getAgent('writer');
-
-// Use them in a workflow
-const research = await researcher.prompt('Research the latest AI trends');
-const article = await writer.prompt(`Write an article about: ${research}`);
-```
-
-### File Operations
-
-```typescript
-import { Laigent, AgentConfig } from 'laigents';
-
-// Configure a coding agent
-const agents: AgentConfig[] = [
-  {
-    name: 'coder',
-    systemPrompt: 'You are a code assistant.',
+    name: 'function_creator',
+    systemPrompt:
+      'You are a TypeScript function creator. You create well-documented, efficient functions.',
     purpose: 'coding',
     response: {
       type: 'code',
       language: 'typescript',
+      maxTokens: 300,
+    },
+  },
+  {
+    name: 'documenter',
+    systemPrompt: 'You are a documentation expert. You create clear, comprehensive documentation.',
+    purpose: 'reasoning',
+    response: {
+      type: 'markdown',
+      maxTokens: 300,
     },
   },
 ];
 
+// Configure the system
+const config: SystemConfig = {
+  openaiApiKey: process.env.OPENAI_API_KEY!,
+  pineconeApiKey: process.env.PINECONE_API_KEY!,
+  pineconeEnvironment: process.env.PINECONE_ENVIRONMENT!,
+  pineconeIndexName: process.env.PINECONE_INDEX!,
+  embeddingModel: process.env.OPENAI_EMBEDDING_MODEL,
+};
+
 // Create and initialize the Laigent instance
-const ai = new Laigent({
-  agents,
-  openai: {
-    apiKey: process.env.OPENAI_API_KEY,
-    model: 'gpt-4-turbo-preview',
-  },
-  pinecone: {
-    apiKey: process.env.PINECONE_API_KEY,
-    environment: process.env.PINECONE_ENVIRONMENT,
-    index: process.env.PINECONE_INDEX,
-  },
-});
+const ai = new Laigent(agents, config);
 
-await ai.initialize();
+async function main() {
+  await ai.initialize();
 
-// Get the coding agent
-const coder = ai.getAgent('coder');
+  // Get both agents
+  const functionCreator = ai.getAgent('function_creator');
+  const documenter = ai.getAgent('documenter');
 
-// Use file operations
-const fileContent = await coder.actions.readFile('example.ts');
-await coder.actions.writeFile('output.ts', 'console.log("Hello World!");');
+  // Create a function
+  const functionCode = await functionCreator.prompt(
+    'Create a function that calculates the factorial of a number.'
+  );
+
+  // Write the function to a file
+  await functionCreator.writeFile('factorial.ts', functionCode);
+
+  // Get documentation for the function
+  const functionDoc = await documenter.prompt(
+    'Create documentation for this factorial function: ' + functionCode
+  );
+
+  // Write the documentation
+  await documenter.writeFile('factorial.md', functionDoc);
+
+  // Read both files
+  const code = await functionCreator.readFile('factorial.ts');
+  const docs = await documenter.readFile('factorial.md');
+
+  console.log('Function Code:\n', code);
+  console.log('Function Documentation:\n', docs);
+}
+
+main();
 ```
 
 ## API Documentation
@@ -173,24 +187,18 @@ await coder.actions.writeFile('output.ts', 'console.log("Hello World!");');
 The main class for managing agents and their configurations.
 
 ```typescript
-new Laigent({
+new Laigent(
   agents: AgentConfig[],
-  openai: {
-    apiKey: string,
-    model?: string,
-  },
-  pinecone: {
-    apiKey: string,
-    environment: string,
-    index: string,
-  },
-})
+  config: SystemConfig
+)
 ```
 
 #### Methods
 
 - `initialize(): Promise<void>` - Initialize the instance and all agents
 - `getAgent(name: string): Agent` - Get an agent by name
+- `getAllAgents(): Agent[]` - Get all initialized agents
+- `getAgentNames(): string[]` - Get names of all agents
 
 ### Agent Class
 
@@ -198,9 +206,15 @@ The class representing individual agents.
 
 #### Methods
 
-- `prompt(instruction: string): Promise<string>` - Send a prompt to the agent
-- `saveInMemory(content: string, contentType: ContentType): Promise<void>` - Save content to agent's memory
-- `searchMemory(query: string): Promise<Memory[]>` - Search agent's memory
+- `prompt(prompt: string): Promise<string>` - Send a prompt to the agent
+- `saveInMemory(content: string, contentType: ContentType): Promise<string[]>` - Save content to agent's memory
+- `searchMemory(query: string, limit?: number, filter?: MemorySearchFilter): Promise<Memory[]>` - Search agent's memory
+- `readFile(path: string): Promise<string>` - Read a file
+- `writeFile(path: string, content: string | object): Promise<void>` - Write to a file
+- `appendFile(path: string, content: string): Promise<void>` - Append to a file
+- `fileExists(path: string): Promise<boolean>` - Check if a file exists
+- `createDirectory(path: string): Promise<void>` - Create a directory
+- `executeCommand(command: string): Promise<string>` - Execute a shell command
 
 For more detailed documentation and examples, visit our [GitHub repository](https://github.com/ksafranski/laigents).
 
