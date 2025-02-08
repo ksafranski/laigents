@@ -19,20 +19,13 @@ A simple to use set of abstractions for building AI agents and workflows. This s
 
 ## Installation
 
-1. Clone the repository:
-
-```bash
-git clone <your-repo-url>
-cd ai-agent-system
-```
-
-2. Install dependencies:
+1. Install the dependencies:
 
 ```bash
 yarn install
 ```
 
-3. Copy the environment example file and fill in your credentials:
+2. Create a `.env` file in your project root:
 
 ```bash
 cp .env.example .env
@@ -53,6 +46,8 @@ PINECONE_INDEX_NAME="your-index-name"
 ```
 
 ## Basic Usage
+
+See the [example](./example/index.ts) for a complete example of how to use the system.
 
 Here's a simple example of creating a system with an agent:
 
