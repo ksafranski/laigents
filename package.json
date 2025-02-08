@@ -8,7 +8,8 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "example": "tsx example/index.ts",
+    "example:basic": "tsx example/basic/index.ts",
+    "example:multi-agent": "tsx example/multi-agent/index.ts",
     "memory:clear": "tsx utils/clearMemory.ts"
   },
   "dependencies": {

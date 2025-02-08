@@ -81,6 +81,16 @@ export class Agent {
         }
       }
 
+      // Handle code responses
+      if (this.responseConfig?.type === "code") {
+        // Strip markdown code blocks if present
+        const codeMatch = response.match(/```(?:\w+\n)?([\s\S]+?)```/);
+        if (codeMatch) {
+          this.logger.info("Stripped markdown formatting from code response");
+          return codeMatch[1].trim();
+        }
+      }
+
       this.logger.success(`Response received`);
       return response;
     } catch (error) {

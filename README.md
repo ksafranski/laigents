@@ -102,6 +102,86 @@ const memories = await agent.searchMemory(
 );
 ```
 
+## Multi-Agent System
+
+You can create multiple agents with different purposes to handle various tasks. Here's an example of using multiple agents to create and document code:
+
+```typescript
+import { System, AgentConfig, SystemConfig } from "./src";
+
+const systemConfig: SystemConfig = {
+  openaiApiKey: process.env.OPENAI_API_KEY!,
+  pineconeApiKey: process.env.PINECONE_API_KEY!,
+  pineconeIndexName: process.env.PINECONE_INDEX_NAME!,
+  embeddingModel: process.env.OPENAI_EMBEDDING_MODEL,
+};
+
+// Configure multiple agents with different purposes
+const agents: AgentConfig[] = [
+  {
+    name: "coder",
+    purpose: "coding",
+    systemPrompt:
+      "You are a TypeScript expert focused on writing clean, efficient code.",
+    response: {
+      type: "code",
+      language: "typescript",
+    },
+  },
+  {
+    name: "documenter",
+    purpose: "reasoning",
+    systemPrompt:
+      "You are a technical writer who creates clear documentation for code.",
+    response: {
+      type: "markdown",
+    },
+  },
+];
+
+const system = new System(agents, systemConfig);
+await system.initialize();
+
+// Get both agents
+const coder = system.getAgent("coder");
+const documenter = system.getAgent("documenter");
+
+// Use coder to create a function
+const code = await coder.prompt("Create a function that implements quicksort");
+await coder.writeFile("quicksort.ts", code);
+
+// Use documenter to create documentation
+const docs = await documenter.prompt(
+  `Create documentation for this code: ${code}`
+);
+await documenter.writeFile("quicksort.md", docs);
+
+// Save both to memory with related metadata
+await coder.saveInMemory(code, "code", {
+  algorithm: "quicksort",
+  category: "sorting",
+});
+
+await documenter.saveInMemory(docs, "markdown", {
+  algorithm: "quicksort",
+  type: "documentation",
+});
+
+// Later, you can search either agent's memory
+const codeExamples = await coder.searchMemory("quicksort implementation");
+const documentation = await documenter.searchMemory("quicksort documentation");
+```
+
+Each agent can:
+
+- Have its own purpose and model selection
+- Maintain separate memory contexts
+- Be optimized for specific tasks
+- Share information through file operations
+- Have custom system prompts and response types
+
+This allows you to create specialized agents that work together to complete complex tasks, each focusing on their area of expertise.
+
 ## Agent Configuration
 
 Agents can be configured with different purposes:
