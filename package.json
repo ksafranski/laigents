@@ -1,16 +1,35 @@
 {
-  "name": "ai-agent-system",
+  "name": "lagent",
   "version": "1.0.0",
+  "description": "A simple set of abstractions for building AI agents and workflows",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "engines": {
     "node": ">=20.0.0"
   },
   "license": "MIT",
   "scripts": {
     "build": "tsc",
+    "clean": "rm -rf dist",
+    "prebuild": "yarn clean",
+    "prepare": "yarn build",
+    "prepublishOnly": "yarn test && yarn lint",
+    "preversion": "yarn lint",
+    "version": "git add -A src",
+    "postversion": "git push && git push --tags",
+    "publish:patch": "npm version patch && npm publish",
+    "publish:minor": "npm version minor && npm publish",
+    "publish:major": "npm version major && npm publish",
     "example:basic": "tsx example/basic/index.ts",
     "example:multi-agent": "tsx example/multi-agent/index.ts",
-    "memory:clear": "tsx utils/clearMemory.ts"
+    "memory:clear": "tsx utils/clearMemory.ts",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix"
   },
   "dependencies": {
     "@pinecone-database/pinecone": "^2.0.0",
@@ -22,6 +41,29 @@
     "typescript": "^5.3.3"
   },
   "devDependencies": {
-    "@types/node": "^20.10.5"
-  }
+    "@types/node": "^20.10.5",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "prettier": "^3.0.0"
+  },
+  "keywords": [
+    "ai",
+    "agents",
+    "workflows",
+    "llm",
+    "openai",
+    "automation"
+  ],
+  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/ai-agent-system.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/ai-agent-system/issues"
+  },
+  "homepage": "https://github.com/yourusername/ai-agent-system#readme"
 }

@@ -1,26 +1,22 @@
-function quicksort<T>(array: T[], low: number = 0, high: number = array.length - 1): T[] {
-    if (low < high) {
-        const pivotIndex = partition(array, low, high);
-        quicksort(array, low, pivotIndex - 1);
-        quicksort(array, pivotIndex + 1, high);
-    }
-    return array;
-}
-
-function partition<T>(array: T[], low: number, high: number): number {
-    const pivot = array[high];
-    let i = low - 1;
-
-    for (let j = low; j < high; j++) {
-        if (array[j] <= pivot) {
-            i++;
-            [array[i], array[j]] = [array[j], array[i]];
+function quicksort(arr: number[]): number[] {
+    if (arr.length <= 1) return arr;
+    
+    const pivot = arr[arr.length - 1];
+    const left: number[] = [];
+    const right: number[] = [];
+    
+    for (let i = 0; i < arr.length - 1; i++) {
+        if (arr[i] < pivot) {
+            left.push(arr[i]);
+        } else {
+            right.push(arr[i]);
         }
     }
-    [array[i + 1], array[high]] = [array[high], array[i + 1]];
-    return i + 1;
+    
+    return [...quicksort(left), pivot, ...quicksort(right)];
 }
 
 // Example usage:
-// const sortedArray = quicksort([10, 7, 8, 9, 1, 5]);
-// console.log(sortedArray); // Output: [1, 5, 7, 8, 9, 10]
+const unsortedArray = [3, 6, 8, 10, 1, 2, 1];
+const sortedArray = quicksort(unsortedArray);
+console.log(sortedArray); // [1, 1, 2, 3, 6, 8, 10]
