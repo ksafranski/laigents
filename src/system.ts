@@ -1,6 +1,6 @@
-import { Agent } from "./agent";
-import { AgentConfig, SystemConfig } from "./memory/types";
-import { Logger } from "./logger";
+import { Agent } from './agent';
+import { AgentConfig, SystemConfig } from './memory/types';
+import { Logger } from './logger';
 
 export class System {
   private agents: Map<string, Agent>;
@@ -8,7 +8,7 @@ export class System {
   private config: SystemConfig;
 
   constructor(agentConfigs: AgentConfig[], config: SystemConfig) {
-    this.logger = new Logger("System", "blue");
+    this.logger = new Logger('System', 'blue');
     this.config = config;
     this.agents = new Map();
 
@@ -24,13 +24,11 @@ export class System {
   }
 
   async initialize(): Promise<void> {
-    this.logger.info("Initializing all agents...");
+    this.logger.info('Initializing all agents...');
 
     try {
-      await Promise.all(
-        Array.from(this.agents.values()).map((agent) => agent.initialize())
-      );
-      this.logger.success("All agents initialized successfully");
+      await Promise.all(Array.from(this.agents.values()).map((agent) => agent.initialize()));
+      this.logger.success('All agents initialized successfully');
     } catch (error) {
       this.logger.error(`Failed to initialize agents: ${error}`);
       throw error;

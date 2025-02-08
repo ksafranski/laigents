@@ -1,5 +1,5 @@
-import { OpenAI } from "openai";
-import { Logger } from "../logger";
+import { OpenAI } from 'openai';
+import { Logger } from '../logger';
 
 export class OpenAIAdapter {
   private client: OpenAI;
@@ -8,8 +8,8 @@ export class OpenAIAdapter {
 
   constructor(apiKey: string, embeddingModel?: string) {
     this.client = new OpenAI({ apiKey });
-    this.logger = new Logger("OpenAI");
-    this.embeddingModel = embeddingModel || "text-embedding-ada-002";
+    this.logger = new Logger('OpenAI');
+    this.embeddingModel = embeddingModel || 'text-embedding-ada-002';
   }
 
   async getEmbedding(text: string): Promise<number[]> {
@@ -46,12 +46,12 @@ export class OpenAIAdapter {
     try {
       const completion = await this.client.chat.completions.create({
         messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
         ],
         model,
       });
-      return completion.choices[0].message.content || "";
+      return completion.choices[0].message.content || '';
     } catch (error) {
       this.logger.error(`Failed to create chat completion: ${error}`);
       throw error;

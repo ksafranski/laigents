@@ -1,8 +1,7 @@
-import { promises as fs } from "fs";
-import { exec } from "child_process";
-import { promisify } from "util";
-import { join } from "path";
-import { Logger } from "./logger";
+import { promises as fs } from 'fs';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+import { Logger } from './logger';
 
 const execAsync = promisify(exec);
 
@@ -16,14 +15,14 @@ export class Actions {
   }
 
   private getActionLogger(action: string): Logger {
-    return new Logger(`${this.context}:${action}`, "orange");
+    return new Logger(`${this.context}:${action}`, 'orange');
   }
 
   async readFile(path: string): Promise<string> {
-    const logger = this.getActionLogger("readFile");
+    const logger = this.getActionLogger('readFile');
     try {
       logger.info(`Reading file: ${path}`);
-      const content = await fs.readFile(path, "utf-8");
+      const content = await fs.readFile(path, 'utf-8');
       logger.success(`Successfully read file: ${path}`);
       return content;
     } catch (error) {
@@ -33,10 +32,10 @@ export class Actions {
   }
 
   async writeFile(path: string, content: string): Promise<void> {
-    const logger = this.getActionLogger("writeFile");
+    const logger = this.getActionLogger('writeFile');
     try {
       logger.info(`Writing to file: ${path}`);
-      await fs.writeFile(path, content, "utf-8");
+      await fs.writeFile(path, content, 'utf-8');
       logger.success(`Successfully wrote to file: ${path}`);
     } catch (error) {
       logger.error(`Failed to write to file ${path}: ${error}`);
@@ -45,10 +44,10 @@ export class Actions {
   }
 
   async appendFile(path: string, content: string): Promise<void> {
-    const logger = this.getActionLogger("appendFile");
+    const logger = this.getActionLogger('appendFile');
     try {
       logger.info(`Appending to file: ${path}`);
-      await fs.appendFile(path, content, "utf-8");
+      await fs.appendFile(path, content, 'utf-8');
       logger.success(`Successfully appended to file: ${path}`);
     } catch (error) {
       logger.error(`Failed to append to file ${path}: ${error}`);
@@ -57,7 +56,7 @@ export class Actions {
   }
 
   async executeCommand(command: string): Promise<string> {
-    const logger = this.getActionLogger("execute");
+    const logger = this.getActionLogger('execute');
     try {
       logger.info(`Executing command: ${command}`);
       const { stdout, stderr } = await execAsync(command);
@@ -76,7 +75,6 @@ export class Actions {
   }
 
   async fileExists(path: string): Promise<boolean> {
-    const logger = this.getActionLogger("fileExists");
     try {
       await fs.access(path);
       return true;
@@ -86,7 +84,7 @@ export class Actions {
   }
 
   async createDirectory(path: string): Promise<void> {
-    const logger = this.getActionLogger("createDir");
+    const logger = this.getActionLogger('createDir');
     try {
       logger.info(`Creating directory: ${path}`);
       await fs.mkdir(path, { recursive: true });

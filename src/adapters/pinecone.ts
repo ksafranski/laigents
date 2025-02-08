@@ -1,6 +1,6 @@
-import { Pinecone } from "@pinecone-database/pinecone";
-import { Logger } from "../logger";
-import { ContentType } from "../memory/types";
+import { Pinecone } from '@pinecone-database/pinecone';
+import { Logger } from '../logger';
+import { ContentType } from '../memory/types';
 
 export interface VectorMetadata {
   text: string;
@@ -26,7 +26,7 @@ export class PineconeAdapter {
 
   constructor(apiKey: string) {
     this.client = new Pinecone({ apiKey });
-    this.logger = new Logger("Pinecone");
+    this.logger = new Logger('Pinecone');
   }
 
   async initialize(indexName: string): Promise<void> {
@@ -74,7 +74,7 @@ export class PineconeAdapter {
   async deleteAll(): Promise<void> {
     try {
       await this.index.deleteAll();
-      this.logger.success("Deleted all vectors from the index");
+      this.logger.success('Deleted all vectors from the index');
     } catch (error) {
       this.logger.error(`Failed to delete all vectors: ${error}`);
       throw error;

@@ -1,4 +1,6 @@
-# AI Agent System
+# Lagent
+
+For those of us who want to be lazy and build agents.
 
 A simple to use set of abstractions for building AI agents and workflows. This system allows developers to instantiate agents and instruct workflows to complete tasks, with built-in support for memory and file operations.
 
@@ -52,7 +54,7 @@ See the [example](./example/index.ts) for a complete example of how to use the s
 Here's a simple example of creating a system with an agent:
 
 ```typescript
-import { System, AgentConfig, SystemConfig } from "./src";
+import { System, AgentConfig, SystemConfig } from './src';
 
 // Configure the system
 const systemConfig: SystemConfig = {
@@ -65,12 +67,12 @@ const systemConfig: SystemConfig = {
 // Configure an agent
 const agents: AgentConfig[] = [
   {
-    name: "coder",
-    purpose: "coding", // Will use purpose-specific model
-    systemPrompt: "You are a helpful coding assistant.",
+    name: 'coder',
+    purpose: 'coding', // Will use purpose-specific model
+    systemPrompt: 'You are a helpful coding assistant.',
     response: {
-      type: "code",
-      language: "typescript",
+      type: 'code',
+      language: 'typescript',
     },
   },
 ];
@@ -80,25 +82,23 @@ const system = new System(agents, systemConfig);
 await system.initialize();
 
 // Get the agent and use it
-const agent = system.getAgent("coder");
+const agent = system.getAgent('coder');
 
 // Generate code
-const response = await agent.prompt(
-  "Create a function that calculates the fibonacci sequence"
-);
+const response = await agent.prompt('Create a function that calculates the fibonacci sequence');
 console.log(response);
 
 // Save the response to memory
-await agent.saveInMemory(response, "code", {
-  topic: "algorithms",
-  difficulty: "medium",
+await agent.saveInMemory(response, 'code', {
+  topic: 'algorithms',
+  difficulty: 'medium',
 });
 
 // Search memory
 const memories = await agent.searchMemory(
-  "fibonacci implementation",
+  'fibonacci implementation',
   5, // Number of results
-  { topic: "algorithms" } // Optional filter
+  { topic: 'algorithms' } // Optional filter
 );
 ```
 
@@ -107,7 +107,7 @@ const memories = await agent.searchMemory(
 You can create multiple agents with different purposes to handle various tasks. Here's an example of using multiple agents to create and document code:
 
 ```typescript
-import { System, AgentConfig, SystemConfig } from "./src";
+import { System, AgentConfig, SystemConfig } from './src';
 
 const systemConfig: SystemConfig = {
   openaiApiKey: process.env.OPENAI_API_KEY!,
@@ -119,22 +119,20 @@ const systemConfig: SystemConfig = {
 // Configure multiple agents with different purposes
 const agents: AgentConfig[] = [
   {
-    name: "coder",
-    purpose: "coding",
-    systemPrompt:
-      "You are a TypeScript expert focused on writing clean, efficient code.",
+    name: 'coder',
+    purpose: 'coding',
+    systemPrompt: 'You are a TypeScript expert focused on writing clean, efficient code.',
     response: {
-      type: "code",
-      language: "typescript",
+      type: 'code',
+      language: 'typescript',
     },
   },
   {
-    name: "documenter",
-    purpose: "reasoning",
-    systemPrompt:
-      "You are a technical writer who creates clear documentation for code.",
+    name: 'documenter',
+    purpose: 'reasoning',
+    systemPrompt: 'You are a technical writer who creates clear documentation for code.',
     response: {
-      type: "markdown",
+      type: 'markdown',
     },
   },
 ];
@@ -143,33 +141,31 @@ const system = new System(agents, systemConfig);
 await system.initialize();
 
 // Get both agents
-const coder = system.getAgent("coder");
-const documenter = system.getAgent("documenter");
+const coder = system.getAgent('coder');
+const documenter = system.getAgent('documenter');
 
 // Use coder to create a function
-const code = await coder.prompt("Create a function that implements quicksort");
-await coder.writeFile("quicksort.ts", code);
+const code = await coder.prompt('Create a function that implements quicksort');
+await coder.writeFile('quicksort.ts', code);
 
 // Use documenter to create documentation
-const docs = await documenter.prompt(
-  `Create documentation for this code: ${code}`
-);
-await documenter.writeFile("quicksort.md", docs);
+const docs = await documenter.prompt(`Create documentation for this code: ${code}`);
+await documenter.writeFile('quicksort.md', docs);
 
 // Save both to memory with related metadata
-await coder.saveInMemory(code, "code", {
-  algorithm: "quicksort",
-  category: "sorting",
+await coder.saveInMemory(code, 'code', {
+  algorithm: 'quicksort',
+  category: 'sorting',
 });
 
-await documenter.saveInMemory(docs, "markdown", {
-  algorithm: "quicksort",
-  type: "documentation",
+await documenter.saveInMemory(docs, 'markdown', {
+  algorithm: 'quicksort',
+  type: 'documentation',
 });
 
 // Later, you can search either agent's memory
-const codeExamples = await coder.searchMemory("quicksort implementation");
-const documentation = await documenter.searchMemory("quicksort documentation");
+const codeExamples = await coder.searchMemory('quicksort implementation');
+const documentation = await documenter.searchMemory('quicksort documentation');
 ```
 
 Each agent can:
@@ -194,9 +190,9 @@ Each purpose automatically selects the most appropriate model:
 
 ```typescript
 const PURPOSE_MODEL_MAP = {
-  reasoning: "gpt-4o",
-  answering: "gpt-4o-mini",
-  coding: "o1",
+  reasoning: 'gpt-4o',
+  answering: 'gpt-4o-mini',
+  coding: 'o1',
 };
 ```
 
@@ -220,10 +216,10 @@ yarn memory:clear
 Agents can perform file operations:
 
 ```typescript
-await agent.writeFile("output.ts", response);
-await agent.readFile("input.txt");
-await agent.appendFile("log.txt", "New entry");
-await agent.createDirectory("new-folder");
+await agent.writeFile('output.ts', response);
+await agent.readFile('input.txt');
+await agent.appendFile('log.txt', 'New entry');
+await agent.createDirectory('new-folder');
 ```
 
 ## Command Execution
@@ -231,7 +227,7 @@ await agent.createDirectory("new-folder");
 Agents can execute system commands:
 
 ```typescript
-const result = await agent.executeCommand("ls -la");
+const result = await agent.executeCommand('ls -la');
 ```
 
 ## Architecture

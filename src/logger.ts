@@ -1,24 +1,17 @@
-import chalk from "chalk";
+import chalk from 'chalk';
 
-type LogColor = "blue" | "green" | "teal" | "yellow" | "orange" | "purple";
+type LogColor = 'blue' | 'green' | 'teal' | 'yellow' | 'orange' | 'purple';
 
 const colorMap: Record<LogColor, chalk.ChalkFunction> = {
   blue: chalk.blue,
   green: chalk.green,
   teal: chalk.cyan,
   yellow: chalk.yellow,
-  orange: chalk.hex("#FFA500"),
+  orange: chalk.hex('#FFA500'),
   purple: chalk.magenta,
 };
 
-const AVAILABLE_COLORS: LogColor[] = [
-  "blue",
-  "green",
-  "teal",
-  "yellow",
-  "orange",
-  "purple",
-];
+const AVAILABLE_COLORS: LogColor[] = ['blue', 'green', 'teal', 'yellow', 'orange', 'purple'];
 
 export class Logger {
   private static contextMap = new Map<string, LogColor>();
@@ -36,10 +29,7 @@ export class Logger {
     }
 
     // If a preferred color is specified and not in use, use it
-    if (
-      preferredColor &&
-      !Array.from(Logger.contextMap.values()).includes(preferredColor)
-    ) {
+    if (preferredColor && !Array.from(Logger.contextMap.values()).includes(preferredColor)) {
       Logger.contextMap.set(context, preferredColor);
       this.color = colorMap[preferredColor];
       return;
@@ -47,9 +37,7 @@ export class Logger {
 
     // Find the first available color that's not in use
     const usedColors = new Set(Logger.contextMap.values());
-    const availableColor = AVAILABLE_COLORS.find(
-      (color) => !usedColors.has(color)
-    );
+    const availableColor = AVAILABLE_COLORS.find((color) => !usedColors.has(color));
 
     if (availableColor) {
       // If we found an unused color, use it
@@ -57,8 +45,7 @@ export class Logger {
       this.color = colorMap[availableColor];
     } else {
       // If all colors are in use, pick one randomly
-      const randomColor =
-        AVAILABLE_COLORS[Math.floor(Math.random() * AVAILABLE_COLORS.length)];
+      const randomColor = AVAILABLE_COLORS[Math.floor(Math.random() * AVAILABLE_COLORS.length)];
       Logger.contextMap.set(context, randomColor);
       this.color = colorMap[randomColor];
     }
@@ -70,13 +57,13 @@ export class Logger {
 
   private getTimestamp(): string {
     const now = new Date();
-    const time = now.toLocaleTimeString("en-US", {
+    const time = now.toLocaleTimeString('en-US', {
       hour12: false,
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
     });
-    const ms = now.getMilliseconds().toString().padStart(3, "0");
+    const ms = now.getMilliseconds().toString().padStart(3, '0');
     return chalk.gray(`${time}.${ms}`);
   }
 

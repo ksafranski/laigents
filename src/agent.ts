@@ -1,4 +1,4 @@
-import { Logger } from "./logger";
+import { Logger } from './logger';
 import {
   ContentType,
   Memory,
@@ -7,20 +7,20 @@ import {
   AgentPurpose,
   ResponseConfig,
   SystemConfig,
-} from "./memory/types";
-import { ContentChunker } from "./memory/chunker";
-import { generateSystemPrompt } from "./prompts";
-import { Actions } from "./actions";
-import { OpenAIAdapter } from "./adapters/openai";
-import { PineconeAdapter, Vector } from "./adapters/pinecone";
+} from './memory/types';
+import { ContentChunker } from './memory/chunker';
+import { generateSystemPrompt } from './prompts';
+import { Actions } from './actions';
+import { OpenAIAdapter } from './adapters/openai';
+import { PineconeAdapter, Vector } from './adapters/pinecone';
 
 const BATCH_SIZE = 100; // Maximum number of vectors to upsert at once
-const DEFAULT_MODEL: ModelType = "gpt-4o-mini";
+const DEFAULT_MODEL: ModelType = 'gpt-4o-mini';
 
 const PURPOSE_MODEL_MAP: Record<AgentPurpose, ModelType> = {
-  reasoning: "gpt-4o",
-  answering: "gpt-4o-mini",
-  coding: "o1",
+  reasoning: 'gpt-4o',
+  answering: 'gpt-4o-mini',
+  coding: 'o1',
 };
 
 export class Agent {
@@ -38,19 +38,14 @@ export class Agent {
     this.name = agentConfig.name;
     this.model =
       agentConfig.model ||
-      (agentConfig.purpose
-        ? PURPOSE_MODEL_MAP[agentConfig.purpose]
-        : DEFAULT_MODEL);
+      (agentConfig.purpose ? PURPOSE_MODEL_MAP[agentConfig.purpose] : DEFAULT_MODEL);
     this.responseConfig = agentConfig.response;
     this.config = systemConfig;
     this.systemPrompt = generateSystemPrompt(agentConfig);
     this.actions = new Actions(this.name);
 
     // Initialize adapters
-    this.openai = new OpenAIAdapter(
-      this.config.openaiApiKey,
-      this.config.embeddingModel
-    );
+    this.openai = new OpenAIAdapter(this.config.openaiApiKey, this.config.embeddingModel);
     this.pinecone = new PineconeAdapter(this.config.pineconeApiKey);
     this.logger = new Logger(agentConfig.name, agentConfig.loggerColor);
   }
@@ -70,7 +65,7 @@ export class Agent {
       );
 
       // Handle JSON responses
-      if (this.responseConfig?.type === "json") {
+      if (this.responseConfig?.type === 'json') {
         try {
           const jsonResponse = JSON.parse(response);
           this.logger.success(`Parsed JSON response successfully`);
@@ -82,11 +77,11 @@ export class Agent {
       }
 
       // Handle code responses
-      if (this.responseConfig?.type === "code") {
+      if (this.responseConfig?.type === 'code') {
         // Strip markdown code blocks if present
         const codeMatch = response.match(/```(?:\w+\n)?([\s\S]+?)```/);
         if (codeMatch) {
-          this.logger.info("Stripped markdown formatting from code response");
+          this.logger.info('Stripped markdown formatting from code response');
           return codeMatch[1].trim();
         }
       }
@@ -108,11 +103,7 @@ export class Agent {
 
     try {
       // Chunk the content
-      const chunks = await ContentChunker.chunkContent(
-        content,
-        contentType,
-        metadata
-      );
+      const chunks = await ContentChunker.chunkContent(content, contentType, metadata);
       const originalId = `${this.name}-${Date.now()}`;
       const timestamp = new Date().toISOString();
 
@@ -141,7 +132,7 @@ export class Agent {
               ...Object.entries(metadata).reduce(
                 (acc, [key, value]) => ({
                   ...acc,
-                  [key]: value?.toString() || "",
+                  [key]: value?.toString() || '',
                 }),
                 {}
               ),
@@ -204,8 +195,7 @@ export class Agent {
   }
 
   async writeFile(path: string, content: string | object): Promise<void> {
-    const stringContent =
-      typeof content === "string" ? content : JSON.stringify(content, null, 2);
+    const stringContent = typeof content === 'string' ? content : JSON.stringify(content, null, 2);
     return this.actions.writeFile(path, stringContent);
   }
 

@@ -1,5 +1,5 @@
-import { ContentType, ContentChunk } from "./types";
-import { Marked } from "marked";
+import { ContentType, ContentChunk } from './types';
+import { Marked } from 'marked';
 
 const marked = new Marked();
 const MAX_CHUNK_SIZE = 8000; // OpenAI's text-embedding-ada-002 has an 8k token limit
@@ -14,13 +14,13 @@ export class ContentChunker {
 
     // Parse content based on type
     switch (contentType) {
-      case "markdown":
+      case 'markdown':
         text = this.parseMarkdown(content);
         break;
-      case "json":
+      case 'json':
         text = this.parseJson(content);
         break;
-      case "text":
+      case 'text':
       default:
         text = content;
     }
@@ -37,8 +37,7 @@ export class ContentChunker {
         contentType,
         chunkIndex: index,
         totalChunks,
-        originalContent:
-          content.length > 100 ? `${content.slice(0, 100)}...` : content,
+        originalContent: content.length > 100 ? `${content.slice(0, 100)}...` : content,
       },
     }));
   }
@@ -47,8 +46,8 @@ export class ContentChunker {
     // Remove markdown syntax and convert to plain text
     const parsed = marked.parseInline(content) as string;
     return parsed
-      .replace(/<[^>]*>/g, "") // Remove HTML tags
-      .replace(/\s+/g, " ") // Normalize whitespace
+      .replace(/<[^>]*>/g, '') // Remove HTML tags
+      .replace(/\s+/g, ' ') // Normalize whitespace
       .trim();
   }
 
@@ -61,25 +60,23 @@ export class ContentChunker {
     }
   }
 
-  private static jsonToText(obj: any, prefix: string = ""): string {
-    if (typeof obj !== "object" || obj === null) {
+  private static jsonToText(obj: any, prefix: string = ''): string {
+    if (typeof obj !== 'object' || obj === null) {
       return `${prefix}${obj}`;
     }
 
     if (Array.isArray(obj)) {
-      return obj
-        .map((item, index) => this.jsonToText(item, `${prefix}[${index}]: `))
-        .join("\n");
+      return obj.map((item, index) => this.jsonToText(item, `${prefix}[${index}]: `)).join('\n');
     }
 
     return Object.entries(obj)
       .map(([key, value]) => this.jsonToText(value, `${prefix}${key}: `))
-      .join("\n");
+      .join('\n');
   }
 
   private static splitIntoChunks(text: string): string[] {
     const chunks: string[] = [];
-    let currentChunk = "";
+    let currentChunk = '';
 
     // Split by sentences (simple approach)
     const sentences = text.split(/(?<=[.!?])\s+/);
@@ -88,20 +85,20 @@ export class ContentChunker {
       if ((currentChunk + sentence).length > MAX_CHUNK_SIZE) {
         if (currentChunk) {
           chunks.push(currentChunk.trim());
-          currentChunk = "";
+          currentChunk = '';
         }
 
         // If a single sentence is too long, split it by words
         if (sentence.length > MAX_CHUNK_SIZE) {
           const words = sentence.split(/\s+/);
-          let wordChunk = "";
+          let wordChunk = '';
 
           for (const word of words) {
-            if ((wordChunk + " " + word).length > MAX_CHUNK_SIZE) {
+            if ((wordChunk + ' ' + word).length > MAX_CHUNK_SIZE) {
               chunks.push(wordChunk.trim());
               wordChunk = word;
             } else {
-              wordChunk += (wordChunk ? " " : "") + word;
+              wordChunk += (wordChunk ? ' ' : '') + word;
             }
           }
 
@@ -112,7 +109,7 @@ export class ContentChunker {
           currentChunk = sentence;
         }
       } else {
-        currentChunk += (currentChunk ? " " : "") + sentence;
+        currentChunk += (currentChunk ? ' ' : '') + sentence;
       }
     }
 

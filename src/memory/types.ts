@@ -1,17 +1,17 @@
-export type ContentType = "text" | "markdown" | "json";
-export type ModelType = "o1" | "gpt-4o" | "gpt-4o-mini";
-export type AgentPurpose = "reasoning" | "answering" | "coding";
-export type ResponseType = "json" | "markdown" | "plaintext" | "code";
+export type ContentType = 'text' | 'markdown' | 'json';
+export type ModelType = 'o1' | 'gpt-4o' | 'gpt-4o-mini';
+export type AgentPurpose = 'reasoning' | 'answering' | 'coding';
+export type ResponseType = 'json' | 'markdown' | 'plaintext' | 'code';
 export type CodeLanguage =
-  | "typescript"
-  | "javascript"
-  | "python"
-  | "rust"
-  | "go"
-  | "java"
-  | "cpp"
-  | "ruby"
-  | "php";
+  | 'typescript'
+  | 'javascript'
+  | 'python'
+  | 'rust'
+  | 'go'
+  | 'java'
+  | 'cpp'
+  | 'ruby'
+  | 'php';
 
 export interface SystemConfig {
   openaiApiKey: string;
@@ -34,7 +34,7 @@ export interface AgentConfig {
   model?: ModelType;
   systemPrompt?: string;
   response?: ResponseConfig;
-  loggerColor?: "blue" | "green" | "teal" | "yellow" | "orange" | "purple";
+  loggerColor?: 'blue' | 'green' | 'teal' | 'yellow' | 'orange' | 'purple';
 }
 
 export interface Memory {

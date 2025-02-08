@@ -1,6 +1,6 @@
-import { AgentConfig, ResponseConfig } from "./memory/types";
+import { AgentConfig } from './memory/types';
 
-const DEFAULT_SYSTEM_PROMPT = "You are a helpful AI assistant.";
+const DEFAULT_SYSTEM_PROMPT = 'You are a helpful AI assistant.';
 
 export function generateSystemPrompt(agentConfig: AgentConfig): string {
   let systemPrompt = agentConfig.systemPrompt || DEFAULT_SYSTEM_PROMPT;
@@ -9,11 +9,11 @@ export function generateSystemPrompt(agentConfig: AgentConfig): string {
   if (responseConfig) {
     systemPrompt += `\n\nIMPORTANT: You must provide your response in ${responseConfig.type} format.`;
 
-    if (responseConfig.type === "json") {
-      systemPrompt += " Ensure your response is valid JSON that can be parsed.";
-    } else if (responseConfig.type === "code") {
+    if (responseConfig.type === 'json') {
+      systemPrompt += ' Ensure your response is valid JSON that can be parsed.';
+    } else if (responseConfig.type === 'code') {
       if (!responseConfig.language) {
-        throw new Error("Language must be specified for code response type");
+        throw new Error('Language must be specified for code response type');
       }
       systemPrompt += `\nProvide ONLY executable ${responseConfig.language} code with no additional text, explanations, or markdown.`;
     }
