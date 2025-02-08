@@ -70,7 +70,7 @@ await ai.initialize();
 
 // Get an agent and use it
 const assistant = ai.getAgent('assistant');
-const response = await assistant.instruct('Tell me a joke about programming.');
+const response = await assistant.prompt('Tell me a joke about programming.');
 console.log(response);
 
 // Use with memory
@@ -120,8 +120,8 @@ const researcher = ai.getAgent('researcher');
 const writer = ai.getAgent('writer');
 
 // Use them in a workflow
-const research = await researcher.instruct('Research the latest AI trends');
-const article = await writer.instruct(`Write an article about: ${research}`);
+const research = await researcher.prompt('Research the latest AI trends');
+const article = await writer.prompt(`Write an article about: ${research}`);
 ```
 
 ### File Operations
@@ -198,7 +198,7 @@ The class representing individual agents.
 
 #### Methods
 
-- `instruct(instruction: string): Promise<string>` - Send an instruction to the agent
+- `prompt(instruction: string): Promise<string>` - Send a prompt to the agent
 - `saveInMemory(content: string, contentType: ContentType): Promise<void>` - Save content to agent's memory
 - `searchMemory(query: string): Promise<Memory[]>` - Search agent's memory
 
