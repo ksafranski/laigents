@@ -1,14 +1,26 @@
-import { ContentType, ContentChunk } from './types';
+import { ContentType, MemoryMetadata } from './types';
 import { Marked } from 'marked';
 
 const marked = new Marked();
 const MAX_CHUNK_SIZE = 8000; // OpenAI's text-embedding-ada-002 has an 8k token limit
 
+interface ChunkMetadata extends MemoryMetadata {
+  chunkIndex: number;
+  totalChunks?: number;
+}
+
+export interface ContentChunk {
+  text: string;
+  metadata: ChunkMetadata;
+}
+
 export class ContentChunker {
+  private static readonly MAX_CHUNK_SIZE = 1000;
+
   static async chunkContent(
     content: string,
     contentType: ContentType,
-    metadata: Record<string, any> = {}
+    metadata: MemoryMetadata
   ): Promise<ContentChunk[]> {
     let text: string;
 
@@ -26,7 +38,7 @@ export class ContentChunker {
     }
 
     // Split into chunks
-    const chunks = this.splitIntoChunks(text);
+    const chunks = this.splitContent(text);
     const totalChunks = chunks.length;
 
     // Create chunk objects with metadata
@@ -34,7 +46,6 @@ export class ContentChunker {
       text: chunk,
       metadata: {
         ...metadata,
-        contentType,
         chunkIndex: index,
         totalChunks,
         originalContent: content.length > 100 ? `${content.slice(0, 100)}...` : content,
@@ -74,42 +85,38 @@ export class ContentChunker {
       .join('\n');
   }
 
-  private static splitIntoChunks(text: string): string[] {
+  private static splitContent(content: string): string[] {
     const chunks: string[] = [];
     let currentChunk = '';
 
     // Split by sentences (simple approach)
-    const sentences = text.split(/(?<=[.!?])\s+/);
+    const sentences = content.split(/[.!?]+\s+/);
 
     for (const sentence of sentences) {
-      if ((currentChunk + sentence).length > MAX_CHUNK_SIZE) {
+      if (currentChunk.length + sentence.length > this.MAX_CHUNK_SIZE) {
         if (currentChunk) {
           chunks.push(currentChunk.trim());
           currentChunk = '';
         }
-
-        // If a single sentence is too long, split it by words
-        if (sentence.length > MAX_CHUNK_SIZE) {
+        // If a single sentence is longer than MAX_CHUNK_SIZE, split it
+        if (sentence.length > this.MAX_CHUNK_SIZE) {
           const words = sentence.split(/\s+/);
-          let wordChunk = '';
-
+          let tempChunk = '';
           for (const word of words) {
-            if ((wordChunk + ' ' + word).length > MAX_CHUNK_SIZE) {
-              chunks.push(wordChunk.trim());
-              wordChunk = word;
-            } else {
-              wordChunk += (wordChunk ? ' ' : '') + word;
+            if (tempChunk.length + word.length > this.MAX_CHUNK_SIZE) {
+              chunks.push(tempChunk.trim());
+              tempChunk = '';
             }
+            tempChunk += word + ' ';
           }
-
-          if (wordChunk) {
-            currentChunk = wordChunk;
+          if (tempChunk) {
+            currentChunk = tempChunk;
           }
         } else {
-          currentChunk = sentence;
+          currentChunk = sentence + '. ';
         }
       } else {
-        currentChunk += (currentChunk ? ' ' : '') + sentence;
+        currentChunk += sentence + '. ';
       }
     }
 

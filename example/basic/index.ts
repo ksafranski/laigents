@@ -37,10 +37,10 @@ async function main() {
   const response = await agent.prompt('I need a function that returns the sum of two numbers.');
 
   // Write the response to a file
-  await agent.writeFile('example/sum.ts', response);
+  await agent.writeFile('example/basic/sum.ts', response);
 
   // Read the file
-  const readFileResult = await agent.readFile('example/sum.ts');
+  const readFileResult = await agent.readFile('example/basic/sum.ts');
   console.log(`------------\nREAD FILE RESULTS:\n${readFileResult}\n------------`);
 
   // Execute a command

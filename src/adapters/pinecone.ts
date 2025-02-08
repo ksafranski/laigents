@@ -1,6 +1,6 @@
 import { Pinecone } from '@pinecone-database/pinecone';
 import { Logger } from '../logger';
-import { ContentType } from '../memory/types';
+import { Memory, ContentType } from '../memory/types';
 
 export interface VectorMetadata {
   text: string;
@@ -16,7 +16,19 @@ export interface VectorMetadata {
 export interface Vector {
   id: string;
   values: number[];
-  metadata: VectorMetadata;
+  metadata: Record<string, string>;
+}
+
+export interface QueryResponse {
+  matches: Array<{
+    id: string;
+    score: number;
+    metadata: Memory;
+  }>;
+}
+
+export interface PineconeFilter {
+  [key: string]: string | number | boolean;
 }
 
 export class PineconeAdapter {
@@ -26,13 +38,12 @@ export class PineconeAdapter {
 
   constructor(apiKey: string) {
     this.client = new Pinecone({ apiKey });
-    this.logger = new Logger('Pinecone');
+    this.logger = new Logger('Pinecone', 'purple');
   }
 
   async initialize(indexName: string): Promise<void> {
     try {
       this.index = this.client.index(indexName);
-      await this.index.describeIndexStats(); // Verify connection
       this.logger.success(`Connected to index: ${indexName}`);
     } catch (error) {
       this.logger.error(`Failed to initialize Pinecone index: ${error}`);
@@ -43,7 +54,7 @@ export class PineconeAdapter {
   async upsertVectors(vectors: Vector[]): Promise<void> {
     try {
       await this.index.upsert(vectors);
-      this.logger.success(`Upserted ${vectors.length} vectors`);
+      this.logger.info(`Upserted ${vectors.length} vectors`);
     } catch (error) {
       this.logger.error(`Failed to upsert vectors: ${error}`);
       throw error;
@@ -53,10 +64,8 @@ export class PineconeAdapter {
   async query(
     vector: number[],
     topK: number = 5,
-    filter: Record<string, any> = {}
-  ): Promise<{
-    matches: Array<{ id: string; score: number; metadata: VectorMetadata }>;
-  }> {
+    filter: PineconeFilter = {}
+  ): Promise<QueryResponse> {
     try {
       const results = await this.index.query({
         vector,

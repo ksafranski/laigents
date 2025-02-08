@@ -23,6 +23,10 @@ const PURPOSE_MODEL_MAP: Record<AgentPurpose, ModelType> = {
   coding: 'gpt-4o-mini',
 };
 
+export interface MemorySearchFilter {
+  [key: string]: string | number | boolean;
+}
+
 export class Agent {
   private name: string;
   private model: ModelType;
@@ -97,13 +101,17 @@ export class Agent {
   async saveInMemory(
     content: string,
     contentType: ContentType,
-    metadata: Record<string, any> = {}
+    metadata: MemorySearchFilter = {}
   ): Promise<string[]> {
     this.logger.info(`Processing ${contentType} content for storage`);
 
     try {
       // Chunk the content
-      const chunks = await ContentChunker.chunkContent(content, contentType, metadata);
+      const chunks = await ContentChunker.chunkContent(content, contentType, {
+        ...metadata,
+        agent: this.name,
+        contentType,
+      });
       const originalId = `${this.name}-${Date.now()}`;
       const timestamp = new Date().toISOString();
 
@@ -127,7 +135,7 @@ export class Agent {
               agent: this.name,
               contentType,
               chunkIndex: chunk.metadata.chunkIndex.toString(),
-              totalChunks: chunk.metadata.totalChunks?.toString(),
+              totalChunks: chunk.metadata.totalChunks?.toString() || '0',
               originalId,
               ...Object.entries(metadata).reduce(
                 (acc, [key, value]) => ({
@@ -157,7 +165,7 @@ export class Agent {
   async searchMemory(
     query: string,
     limit: number = 5,
-    filter: Record<string, any> = {}
+    filter: MemorySearchFilter = {}
   ): Promise<Memory[]> {
     this.logger.info(`Searching memory for: ${query}`);
 

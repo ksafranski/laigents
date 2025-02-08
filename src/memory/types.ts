@@ -1,5 +1,5 @@
 export type ContentType = 'text' | 'markdown' | 'json';
-export type ModelType = 'o1' | 'gpt-4o' | 'gpt-4o-mini';
+export type ModelType = 'gpt-4o' | 'gpt-4o-mini';
 export type AgentPurpose = 'reasoning' | 'answering' | 'coding';
 export type ResponseType = 'json' | 'markdown' | 'plaintext' | 'code';
 export type CodeLanguage =
@@ -37,7 +37,19 @@ export interface AgentConfig {
   loggerColor?: 'blue' | 'green' | 'teal' | 'yellow' | 'orange' | 'purple';
 }
 
-export interface Memory {
+export interface BaseMetadata {
+  [key: string]: string | number | boolean | undefined;
+}
+
+export interface MemoryMetadata extends BaseMetadata {
+  agent: string;
+  contentType: ContentType;
+  chunkIndex?: number;
+  totalChunks?: number;
+  originalId?: string;
+}
+
+export interface Memory extends BaseMetadata {
   text: string;
   timestamp: string;
   agent: string;
@@ -45,16 +57,6 @@ export interface Memory {
   chunkIndex?: string;
   totalChunks?: string;
   originalId?: string;
-  [key: string]: string | undefined;
-}
-
-export interface MemoryMetadata {
-  agent: string;
-  contentType: ContentType;
-  chunkIndex?: number;
-  totalChunks?: number;
-  originalId?: string;
-  [key: string]: any;
 }
 
 export interface PineconeMatch {
@@ -66,9 +68,5 @@ export interface PineconeMatch {
 
 export interface ContentChunk {
   text: string;
-  metadata: {
-    chunkIndex: number;
-    totalChunks?: number;
-    [key: string]: any;
-  };
+  metadata: MemoryMetadata;
 }
