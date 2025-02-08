@@ -2,7 +2,6 @@ import { ContentType, MemoryMetadata } from './types';
 import { Marked } from 'marked';
 
 const marked = new Marked();
-const MAX_CHUNK_SIZE = 8000; // OpenAI's text-embedding-ada-002 has an 8k token limit
 
 interface ChunkMetadata extends MemoryMetadata {
   chunkIndex: number;
@@ -71,17 +70,17 @@ export class ContentChunker {
     }
   }
 
-  private static jsonToText(obj: any, prefix: string = ''): string {
-    if (typeof obj !== 'object' || obj === null) {
-      return `${prefix}${obj}`;
+  private static jsonToText(value: unknown, prefix: string = ''): string {
+    if (typeof value !== 'object' || value === null) {
+      return `${prefix}${value}`;
     }
 
-    if (Array.isArray(obj)) {
-      return obj.map((item, index) => this.jsonToText(item, `${prefix}[${index}]: `)).join('\n');
+    if (Array.isArray(value)) {
+      return value.map((item, index) => this.jsonToText(item, `${prefix}[${index}]: `)).join('\n');
     }
 
-    return Object.entries(obj)
-      .map(([key, value]) => this.jsonToText(value, `${prefix}${key}: `))
+    return Object.entries(value as Record<string, unknown>)
+      .map(([key, val]) => this.jsonToText(val, `${prefix}${key}: `))
       .join('\n');
   }
 

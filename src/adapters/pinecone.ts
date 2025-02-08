@@ -1,4 +1,4 @@
-import { Pinecone } from '@pinecone-database/pinecone';
+import { Pinecone, Index, RecordMetadata } from '@pinecone-database/pinecone';
 import { Logger } from '../logger';
 import { Memory, ContentType } from '../memory/types';
 
@@ -33,7 +33,7 @@ export interface PineconeFilter {
 
 export class PineconeAdapter {
   private client: Pinecone;
-  private index: any;
+  private index!: Index<RecordMetadata>;
   private logger: Logger;
 
   constructor(apiKey: string) {
@@ -73,7 +73,15 @@ export class PineconeAdapter {
         includeMetadata: true,
         filter,
       });
-      return results;
+
+      // Convert Pinecone response to our expected format
+      return {
+        matches: results.matches.map((match) => ({
+          id: match.id,
+          score: match.score ?? 0, // Provide default if undefined
+          metadata: match.metadata as Memory,
+        })),
+      };
     } catch (error) {
       this.logger.error(`Failed to query vectors: ${error}`);
       throw error;
