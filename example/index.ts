@@ -29,15 +29,33 @@ const system = new System(agents, systemConfig);
 async function main() {
   await system.initialize();
   const agent = system.getAgent("smith");
+
+  // Prompt the agent
   const response = await agent.prompt(
     "I need a function that returns the sum of two numbers."
   );
-  await agent.writeFile("smith.ts", response);
-  const result = await agent.readFile("smith.ts");
-  console.log(result);
-  const result2 = await agent.executeCommand("ls");
-  await agent.saveInMemory(result, "text");
-  console.log(result2);
+
+  // Write the response to a file
+  await agent.writeFile("example/sum.ts", response);
+
+  // Read the file
+  const readFileResult = await agent.readFile("example/sum.ts");
+  console.log(
+    `------------\nREAD FILE RESULTS:\n${readFileResult}\n------------`
+  );
+
+  // Execute a command
+  const executeLSResult = await agent.executeCommand("ls ./example");
+  console.log(
+    `------------\nLS EXECUTE COMMAND RESULTS:\n${executeLSResult}\n------------`
+  );
+
+  // Save the result to memory
+  await agent.saveInMemory(executeLSResult, "text");
+
+  // Search memory
+  const memory = await agent.searchMemory("sum");
+  console.log(`------------\nMEMORY:\n${JSON.stringify(memory)}\n------------`);
 }
 
 main();
