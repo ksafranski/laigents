@@ -1,0 +1,16 @@
+This project is aimed at creating a simple to use set of abstractions for building AI
+agents and workflows. The goal is to allow developers to instantiate a new agent and
+instruct workflows to complete tasks.
+
+Try to structure code so it is easy to maintain, understand, and work with. Prefer
+creating class instances when possible. Abstract out common functionality into
+classes, modules, and libraries.
+
+Automatically install all dependencies automatically using yarn.
+
+Prefer tsx over ts-node.
+
+Any configuration that is provided via environment variables should be able to be passed
+to classes via their consturctors.
+
+Use the logger library for all logging.

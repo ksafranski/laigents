@@ -1,0 +1,26 @@
+{
+  "name": "ai-agent-system",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "example": "tsx example/index.ts",
+    "memory:clear": "tsx utils/clearMemory.ts"
+  },
+  "dependencies": {
+    "@pinecone-database/pinecone": "^2.0.0",
+    "chalk": "^4.1.2",
+    "dotenv": "^16.3.1",
+    "marked": "^12.0.0",
+    "openai": "^4.24.1",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5"
+  }
+}
