@@ -1,4 +1,4 @@
-# Lagent
+# Laigents
 
 For those of us who want to be lazy and build agents.
 
@@ -6,241 +6,142 @@ A simple to use set of abstractions for building AI agents and workflows. This s
 
 ## Features
 
-- 🤖 Easy agent creation with purpose-specific configurations
-- 💭 Built-in memory system using Pinecone for vector storage
-- 📝 File system operations and command execution
-- 🔄 Batched vector operations for efficient memory management
-- 🎯 Purpose-optimized model selection
-- 🚀 TypeScript support out of the box
-
-## Prerequisites
-
-- Node.js >= 20.0.0
-- A Pinecone account and index
-- An OpenAI API key
+- 🤖 Simple agent creation and management
+- 💾 Built-in memory management with Pinecone
+- 📝 File operations support
+- 🔄 Workflow automation
+- 🎯 Task-focused design
+- 🔌 Extensible adapter system
 
 ## Installation
 
-1. Install the dependencies:
-
 ```bash
-yarn install
+# Using npm
+npm install laigents
+
+# Using yarn
+yarn add laigents
+
+# Using pnpm
+pnpm add laigents
 ```
 
-2. Create a `.env` file in your project root:
+## Environment Setup
+
+Create a `.env` file in your project root:
 
 ```bash
-cp .env.example .env
-```
-
-## Configuration
-
-Edit your `.env` file with the following required variables:
-
-```env
-# OpenAI Configuration
-OPENAI_API_KEY="your-openai-api-key"
-OPENAI_EMBEDDING_MODEL="text-embedding-ada-002"
-
-# Pinecone Configuration
-PINECONE_API_KEY="your-pinecone-api-key"
-PINECONE_INDEX_NAME="your-index-name"
+OPENAI_API_KEY=your_openai_api_key
+PINECONE_API_KEY=your_pinecone_api_key
+PINECONE_ENVIRONMENT=your_pinecone_environment
+PINECONE_INDEX=your_pinecone_index
 ```
 
 ## Basic Usage
 
-See the [example](./example/index.ts) for a complete example of how to use the system.
-
-Here's a simple example of creating a system with an agent:
-
 ```typescript
-import { System, AgentConfig, SystemConfig } from './src';
+import { Agent, SystemConfig } from 'laigents';
 
-// Configure the system
-const systemConfig: SystemConfig = {
-  openaiApiKey: process.env.OPENAI_API_KEY!,
-  pineconeApiKey: process.env.PINECONE_API_KEY!,
-  pineconeIndexName: process.env.PINECONE_INDEX_NAME!,
-  embeddingModel: process.env.OPENAI_EMBEDDING_MODEL,
+// Configure your agent
+const config: SystemConfig = {
+  openai: {
+    apiKey: process.env.OPENAI_API_KEY,
+    model: 'gpt-4-turbo-preview',
+  },
+  pinecone: {
+    apiKey: process.env.PINECONE_API_KEY,
+    environment: process.env.PINECONE_ENVIRONMENT,
+    index: process.env.PINECONE_INDEX,
+  },
 };
 
-// Configure an agent
-const agents: AgentConfig[] = [
+// Create an agent
+const agent = new Agent(
+  'my-agent',
   {
-    name: 'coder',
-    purpose: 'coding', // Will use purpose-specific model
-    systemPrompt: 'You are a helpful coding assistant.',
-    response: {
-      type: 'code',
-      language: 'typescript',
-    },
+    systemPrompt: 'You are a helpful AI assistant.',
+    purpose: 'general',
+    model: 'gpt-4-turbo-preview',
   },
-];
+  config
+);
 
-// Create the system and initialize
-const system = new System(agents, systemConfig);
-await system.initialize();
-
-// Get the agent and use it
-const agent = system.getAgent('coder');
-
-// Generate code
-const response = await agent.prompt('Create a function that calculates the fibonacci sequence');
+// Use the agent
+const response = await agent.instruct('Tell me a joke about programming.');
 console.log(response);
 
-// Save the response to memory
-await agent.saveInMemory(response, 'code', {
-  topic: 'algorithms',
-  difficulty: 'medium',
-});
+// Use with memory
+await agent.saveInMemory('Important information to remember', 'text');
+const searchResults = await agent.searchMemory('information');
+```
 
-// Search memory
-const memories = await agent.searchMemory(
-  'fibonacci implementation',
-  5, // Number of results
-  { topic: 'algorithms' } // Optional filter
+## Advanced Usage
+
+### Multi-Agent Workflows
+
+```typescript
+import { Agent, SystemConfig } from 'laigents';
+
+// Create multiple agents for different tasks
+const researcher = new Agent(
+  'researcher',
+  {
+    systemPrompt: 'You are a research assistant.',
+    purpose: 'research',
+  },
+  config
 );
+
+const writer = new Agent(
+  'writer',
+  {
+    systemPrompt: 'You are a technical writer.',
+    purpose: 'writing',
+  },
+  config
+);
+
+// Use them in a workflow
+const research = await researcher.instruct('Research the latest AI trends');
+const article = await writer.instruct(`Write an article about: ${research}`);
 ```
 
-## Multi-Agent System
-
-You can create multiple agents with different purposes to handle various tasks. Here's an example of using multiple agents to create and document code:
+### File Operations
 
 ```typescript
-import { System, AgentConfig, SystemConfig } from './src';
+import { Agent, SystemConfig } from 'laigents';
 
-const systemConfig: SystemConfig = {
-  openaiApiKey: process.env.OPENAI_API_KEY!,
-  pineconeApiKey: process.env.PINECONE_API_KEY!,
-  pineconeIndexName: process.env.PINECONE_INDEX_NAME!,
-  embeddingModel: process.env.OPENAI_EMBEDDING_MODEL,
-};
-
-// Configure multiple agents with different purposes
-const agents: AgentConfig[] = [
+const coder = new Agent(
+  'coder',
   {
-    name: 'coder',
+    systemPrompt: 'You are a code assistant.',
     purpose: 'coding',
-    systemPrompt: 'You are a TypeScript expert focused on writing clean, efficient code.',
-    response: {
-      type: 'code',
-      language: 'typescript',
-    },
   },
-  {
-    name: 'documenter',
-    purpose: 'reasoning',
-    systemPrompt: 'You are a technical writer who creates clear documentation for code.',
-    response: {
-      type: 'markdown',
-    },
-  },
-];
+  config
+);
 
-const system = new System(agents, systemConfig);
-await system.initialize();
-
-// Get both agents
-const coder = system.getAgent('coder');
-const documenter = system.getAgent('documenter');
-
-// Use coder to create a function
-const code = await coder.prompt('Create a function that implements quicksort');
-await coder.writeFile('quicksort.ts', code);
-
-// Use documenter to create documentation
-const docs = await documenter.prompt(`Create documentation for this code: ${code}`);
-await documenter.writeFile('quicksort.md', docs);
-
-// Save both to memory with related metadata
-await coder.saveInMemory(code, 'code', {
-  algorithm: 'quicksort',
-  category: 'sorting',
-});
-
-await documenter.saveInMemory(docs, 'markdown', {
-  algorithm: 'quicksort',
-  type: 'documentation',
-});
-
-// Later, you can search either agent's memory
-const codeExamples = await coder.searchMemory('quicksort implementation');
-const documentation = await documenter.searchMemory('quicksort documentation');
+// Read and write files
+const fileContent = await coder.actions.readFile('example.ts');
+await coder.actions.writeFile('output.ts', 'console.log("Hello World!");');
 ```
 
-Each agent can:
+## API Documentation
 
-- Have its own purpose and model selection
-- Maintain separate memory contexts
-- Be optimized for specific tasks
-- Share information through file operations
-- Have custom system prompts and response types
+### Agent Class
 
-This allows you to create specialized agents that work together to complete complex tasks, each focusing on their area of expertise.
-
-## Agent Configuration
-
-Agents can be configured with different purposes:
-
-- `coding`: Optimized for code generation
-- `reasoning`: For complex problem solving
-- `answering`: For general Q&A
-
-Each purpose automatically selects the most appropriate model:
+The main class for creating and managing agents.
 
 ```typescript
-const PURPOSE_MODEL_MAP = {
-  reasoning: 'gpt-4o',
-  answering: 'gpt-4o-mini',
-  coding: 'o1',
-};
+new Agent(name: string, agentConfig: AgentConfig, systemConfig: SystemConfig)
 ```
 
-## Memory System
+#### Methods
 
-The system uses Pinecone for vector storage, automatically handling:
+- `instruct(instruction: string): Promise<string>` - Send an instruction to the agent
+- `saveInMemory(content: string, contentType: ContentType): Promise<void>` - Save content to agent's memory
+- `searchMemory(query: string): Promise<Memory[]>` - Search agent's memory
 
-- Content chunking
-- Embedding generation
-- Batch processing
-- Metadata management
-
-Clear the memory store:
-
-```bash
-yarn memory:clear
-```
-
-## File Operations
-
-Agents can perform file operations:
-
-```typescript
-await agent.writeFile('output.ts', response);
-await agent.readFile('input.txt');
-await agent.appendFile('log.txt', 'New entry');
-await agent.createDirectory('new-folder');
-```
-
-## Command Execution
-
-Agents can execute system commands:
-
-```typescript
-const result = await agent.executeCommand('ls -la');
-```
-
-## Architecture
-
-The system is built with maintainability in mind:
-
-- `Agent`: Main class for agent operations
-- `System`: Manages multiple agents
-- `Adapters`: Clean abstractions for external services
-  - `OpenAIAdapter`: Handles all OpenAI operations
-  - `PineconeAdapter`: Manages vector operations
-- `Actions`: File system and command operations
-- `Logger`: Consistent logging across the system
+For more detailed documentation and examples, visit our [GitHub repository](https://github.com/ksafranski/laigents).
 
 ## Contributing
 
