@@ -41,7 +41,8 @@ export class OpenAIAdapter {
   async createChatCompletion(
     systemPrompt: string,
     userPrompt: string,
-    model: string
+    model: string,
+    jsonResponse?: boolean
   ): Promise<string> {
     try {
       const completion = await this.client.chat.completions.create({
@@ -50,6 +51,7 @@ export class OpenAIAdapter {
           { role: 'user', content: userPrompt },
         ],
         model,
+        response_format: jsonResponse ? { type: 'json_object' } : undefined,
       });
       return completion.choices[0].message.content || '';
     } catch (error) {

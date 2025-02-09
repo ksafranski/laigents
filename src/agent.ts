@@ -65,7 +65,8 @@ export class Agent {
       const response = await this.openai.createChatCompletion(
         this.systemPrompt,
         prompt,
-        this.model
+        this.model,
+        this.responseConfig?.type === 'json'
       );
 
       // Handle JSON responses

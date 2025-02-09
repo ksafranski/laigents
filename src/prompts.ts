@@ -10,7 +10,8 @@ export function generateSystemPrompt(agentConfig: AgentConfig): string {
     systemPrompt += `\n\nIMPORTANT: You must provide your response in ${responseConfig.type} format.`;
 
     if (responseConfig.type === 'json') {
-      systemPrompt += ' Ensure your response is valid JSON that can be parsed.';
+      systemPrompt +=
+        ' Ensure your response is a valid JSON string that can be parsed and does not include any additional text, explanations, or markdown.';
     } else if (responseConfig.type === 'code') {
       if (!responseConfig.language) {
         throw new Error('Language must be specified for code response type');
