@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { Logger } from './logger';
+import path from 'path';
 
 const execAsync = promisify(exec);
 
@@ -31,14 +32,16 @@ export class Actions {
     }
   }
 
-  async writeFile(path: string, content: string): Promise<void> {
+  async writeFile(filePath: string, content: string): Promise<void> {
     const logger = this.getActionLogger('writeFile');
     try {
-      logger.info(`Writing to file: ${path}`);
-      await fs.writeFile(path, content, 'utf-8');
-      logger.success(`Successfully wrote to file: ${path}`);
+      logger.info(`Writing to file: ${filePath}`);
+      // Create directory if it doesn't exist
+      await fs.mkdir(path.dirname(filePath), { recursive: true });
+      await fs.writeFile(filePath, content, 'utf-8');
+      logger.success(`Successfully wrote to file: ${filePath}`);
     } catch (error) {
-      logger.error(`Failed to write to file ${path}: ${error}`);
+      logger.error(`Failed to write to file ${filePath}: ${error}`);
       throw error;
     }
   }
