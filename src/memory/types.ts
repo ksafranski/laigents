@@ -13,6 +13,8 @@ export type CodeLanguage =
   | 'ruby'
   | 'php';
 
+export type LogColor = 'blue' | 'green' | 'teal' | 'yellow' | 'orange' | 'purple';
+
 export interface SystemConfig {
   openaiApiKey: string;
   pineconeApiKey: string;
@@ -30,11 +32,12 @@ export interface ResponseConfig {
 
 export interface AgentConfig {
   name: string;
+  systemPrompt: string;
   purpose?: AgentPurpose;
   model?: ModelType;
-  systemPrompt?: string;
   response?: ResponseConfig;
-  loggerColor?: 'blue' | 'green' | 'teal' | 'yellow' | 'orange' | 'purple';
+  loggerColor?: LogColor;
+  logPrompts?: boolean;
 }
 
 export interface BaseMetadata {

@@ -37,6 +37,7 @@ export class Agent {
   private logger: Logger;
   private config: SystemConfig;
   private actions: Actions;
+  private logPrompts: boolean;
 
   constructor(agentConfig: AgentConfig, systemConfig: SystemConfig) {
     this.name = agentConfig.name;
@@ -47,6 +48,7 @@ export class Agent {
     this.config = systemConfig;
     this.systemPrompt = generateSystemPrompt(agentConfig);
     this.actions = new Actions(this.name);
+    this.logPrompts = agentConfig.logPrompts ?? false;
 
     // Initialize adapters
     this.openai = new OpenAIAdapter(this.config.openaiApiKey, this.config.embeddingModel);
@@ -61,7 +63,11 @@ export class Agent {
 
   async prompt(prompt: string): Promise<string | object> {
     try {
-      this.logger.info(`Processing prompt: ${prompt}`);
+      if (this.logPrompts) {
+        this.logger.info(`Processing prompt: ${prompt}`);
+      } else {
+        this.logger.info('Processing prompt...');
+      }
       const response = await this.openai.createChatCompletion(
         this.systemPrompt,
         prompt,
